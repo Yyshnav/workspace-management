@@ -182,7 +182,7 @@ import 'package:dio/dio.dart';
 import 'package:workspace/bottomnav.dart';
 import 'package:workspace/register.dart';
 
-final baseurl = "http://192.168.1.58:5000";
+final baseurl = "http://192.168.1.11:5000";
 int? lid;
 
 class LoginScreen extends StatefulWidget {

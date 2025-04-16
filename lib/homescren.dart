@@ -510,14 +510,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     ),
                                                   ),
                                                   SizedBox(height: 4),
-                                                  Text(
-                                                    '${space['Facilities']}',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
+                                                  Container(
+                                                    width: 180,
+                                                    child: Text(
+                                                      // maxLines: 2,
+                                                      '${space['Facilities']}',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                      softWrap: true,
+                                                      overflow:
+                                                          TextOverflow.visible,
                                                     ),
-                                                    softWrap: true,
-                                                    overflow:
-                                                        TextOverflow.visible,
                                                   ),
                                                   SizedBox(height: 4),
                                                   Text(

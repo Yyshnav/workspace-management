@@ -62,9 +62,13 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
     if (status == 'Accepted') {
       return Colors.green; // Accepted should be green
     } else if (status == 'Pending') {
-      return Colors.orange;
+      return Colors.grey;
+    } else if (status == 'Cancelled') {
+      return Colors.grey;
     } else if (status == 'Rejected') {
       return Colors.red;
+    } else if (status == 'Paid') {
+      return Colors.blue;
     } else {
       return Colors.grey;
     }
@@ -161,7 +165,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                                           ? Colors
                                               .green // If booking status is Accepted, color is green
                                           : _getStatusColor(
-                                            slot['slotstatus'],
+                                            booking['status'],
                                           ), // Else use the slot status color
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -224,15 +228,13 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                                                       booking['bookingdate'],
                                                   price: price,
                                                   bookingId:
-                                                      booking['id']
-                                                          .toString(), // Price of the booking
+                                                      booking['id'].toString(),
                                                 ),
                                           ),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Colors.blue, // Button color
+                                        backgroundColor: Colors.blue,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
@@ -241,85 +243,57 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                                       ),
                                       child: Text('Pay Now'),
                                     ),
-                                  ],
-                                ),
-                              )
-                            else if (booking['status'] == 'Paid' &&
-                                price == 0.0)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Payment Completed',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            else if (booking['status'] == 'Paid' && price > 0.0)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        // Handle complaint logic here
-                                        // Navigate to a complaint form or screen
                                         showDialog(
                                           context: context,
                                           builder:
                                               (context) => AlertDialog(
-                                                title: Text("Complaint"),
+                                                title: Text("Cancel Booking"),
                                                 content: Text(
-                                                  "Are you sure you want to file a complaint for this booking?",
+                                                  "Are you sure you want to cancel this booking?",
                                                 ),
                                                 actions: [
                                                   TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text("Cancel"),
+                                                    onPressed:
+                                                        () => Navigator.pop(
+                                                          context,
+                                                        ),
+                                                    child: Text("No"),
                                                   ),
                                                   TextButton(
                                                     onPressed: () {
-                                                      Navigator.push(
+                                                      cancelBooking(
+                                                        booking['id']
+                                                            .toString(),
+                                                      );
+                                                      // TODO: Call your API to cancel booking here
+                                                      Navigator.pop(context);
+                                                      ScaffoldMessenger.of(
                                                         context,
-                                                        MaterialPageRoute(
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => ComplaintScreen(
-                                                                bookingId:
-                                                                    booking['workspace']['Work_id']
-                                                                        .toString(),
-                                                              ),
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            "Booking cancelled",
+                                                          ),
                                                         ),
                                                       );
-                                                      // Implement your complaint submission logic here
                                                     },
-                                                    child: Text("Ok"),
+                                                    child: Text("Yes"),
                                                   ),
                                                 ],
                                               ),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Colors
-                                                .red, // Complaint button color
+                                        backgroundColor: Colors.red,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
                                         ),
                                       ),
-                                      child: Text('File Complaint'),
+                                      child: Text('Cancel Booking'),
                                     ),
                                   ],
                                 ),
@@ -336,5 +310,24 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
         ),
       ),
     );
+  }
+}
+
+Future<void> cancelBooking(String bookingId) async {
+  final dio = Dio();
+  try {
+    final response = await dio.post(
+      '$baseurl/api/cancelbooking/$bookingId', // Replace with your real endpoint
+      // data: {'booking_id': bookingId},
+    );
+
+    if (response.statusCode == 200) {
+      print("Booking cancelled successfully.");
+    } else {
+      throw Exception("Cancellation failed.");
+    }
+  } catch (e) {
+    print("Error cancelling booking: $e");
+    throw e;
   }
 }
